@@ -57,3 +57,10 @@ line vty 0 4
 ! Save configuration
 end
 write memory
+
+! VERIFY
+show ip interface brief        ! Check interface statuses
+show ip route                  ! View routing table
+show ip nat translations       ! Verify NAT is working
+show ip dhcp binding           ! View assigned DHCP addresses
+show running-config            ! See the active configuration
