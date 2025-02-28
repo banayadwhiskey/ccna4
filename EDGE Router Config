@@ -1,0 +1,59 @@
+enable
+configure terminal
+
+! Set a hostname
+hostname (your-router-name)
+
+! Secure privileged EXEC mode
+enable secret (your-enable-password)
+
+! Create a local admin user
+username (your-username) privilege 15 secret (your-user-password)
+
+! Disable unneeded services for security
+no ip domain-lookup
+service password-encryption
+
+! Configure the WAN interface (connected to ISP)
+interface (your-WAN-interface)  ! Example: GigabitEthernet0/0
+  description WAN Link to ISP
+  ip address (your-WAN-IP) (your-WAN-subnet-mask)  ! Example: 203.0.113.2 255.255.255.252
+  no shutdown
+
+! Configure the LAN interface
+interface (your-LAN-interface)  ! Example: GigabitEthernet0/1
+  description Internal LAN
+  ip address (your-LAN-IP) (your-LAN-subnet-mask)  ! Example: 192.168.1.1 255.255.255.0
+  no shutdown
+
+! Configure a default route to the ISP
+ip route 0.0.0.0 0.0.0.0 (your-ISP-gateway-IP)  ! Example: 203.0.113.1
+
+! Enable NAT for internal users to access the internet
+access-list 1 permit (your-LAN-subnet) (your-LAN-wildcard-mask)  ! Example: 192.168.1.0 0.0.0.255
+ip nat inside source list 1 interface (your-WAN-interface) overload
+
+interface (your-WAN-interface)
+  ip nat outside
+
+interface (your-LAN-interface)
+  ip nat inside
+
+! Enable DHCP server for LAN clients
+ip dhcp excluded-address (your-excluded-range-start) (your-excluded-range-end)  ! Example: 192.168.1.1 192.168.1.10
+ip dhcp pool (your-DHCP-pool-name)  ! Example: LAN-Pool
+  network (your-LAN-subnet) (your-LAN-subnet-mask)  ! Example: 192.168.1.0 255.255.255.0
+  default-router (your-LAN-gateway)  ! Example: 192.168.1.1
+  dns-server (your-primary-DNS) (your-secondary-DNS)  ! Example: 8.8.8.8 8.8.4.4
+
+! Enable SSH for remote management
+ip domain-name (your-domain-name)  ! Example: example.com
+crypto key generate rsa modulus (your-key-size)  ! Example: 2048
+ip ssh version 2
+line vty 0 4
+  login local
+  transport input ssh
+
+! Save configuration
+end
+write memory
