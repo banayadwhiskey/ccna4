@@ -13,6 +13,7 @@ username (your-username) privilege 15 secret (your-user-password)
 ! Disable unneeded services for security
 no ip domain-lookup
 service password-encryption
+no logging console
 
 ! Configure the WAN interface (connected to ISP)
 interface (your-WAN-interface)  ! Example: GigabitEthernet0/0
